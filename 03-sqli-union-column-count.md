@@ -61,8 +61,8 @@ Before a UNION attack can extract data, the injected query must match the origin
 
 ## Screenshots
 
-![200 OK response for the three-NULL payload in Burp Repeater](images/03-repeater-200.png)
+![200 OK response for the three-NULL payload in Burp Repeater](images/03-lab.png)
 *Three NULLs → `200 OK` in Burp Repeater. The earlier one- and two-NULL payloads returned 500.*
 
-![Lab marked as solved](images/03-lab-solved.png)
+![Lab marked as solved](images/03-result.png)
 *"Congratulations, you solved the lab!"*
