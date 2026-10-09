@@ -51,12 +51,18 @@ There's no visible data in the response because every injected column is `NULL` 
 
 ## Remediation
 
-As with all SQL injection, the fix is to stop user input from crossing the data/code boundary:
-
-- **Parameterised queries (prepared statements)** — bind `category` as a parameter instead of concatenating it into the query string.
-- **Allow-list** the input where the set of valid values is known (e.g. category names).
-- Don't rely on it, but **don't leak stack traces / 500 error detail** to the client — verbose errors make injection easier to map.
+- **Parameterised queries / prepared statements** — bind `category` as data so it's treated as a literal value, never executed as SQL.
+- **Allow-list** the input where the valid set is known (e.g. category names).
+- **Don't leak 500 error detail / stack traces** to the client — verbose errors make injection easier to map.
 
 ## Key takeaway
 
 Before a UNION attack can extract data, the injected query must match the original's column count. Incrementing `NULL`s until the error clears is the standard, type-agnostic way to find that number — and the HTTP status code (500 → 200) is the feedback channel that tells you when you've got it.
+
+## Screenshots
+
+![200 OK response for the three-NULL payload in Burp Repeater](images/03-repeater-200.png)
+*Three NULLs → `200 OK` in Burp Repeater. The earlier one- and two-NULL payloads returned 500.*
+
+![Lab marked as solved](images/03-lab-solved.png)
+*"Congratulations, you solved the lab!"*
