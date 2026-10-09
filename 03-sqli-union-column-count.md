@@ -1,68 +1,65 @@
 # SQL Injection — UNION Attack: Determining the Number of Columns
 
-**Lab:** SQL injection UNION attack, determining the number of columns returned by the query
-**Category:** SQL Injection · UNION attacks
-**Difficulty:** Practitioner
-**Source:** PortSwigger Web Security Academy
+> PortSwigger Web Security Academy lab — training environment, not a real-world system.
+> Lab: *SQL injection UNION attack, determining the number of columns returned by the query* (Practitioner)
 
-> ⚠️ Testing was done in PortSwigger's deliberately vulnerable training lab. This is a learning exercise, not a finding against any real-world system.
+## Summary
 
----
+The product filter inserted the `category` parameter directly into a SQL query. Before data can be extracted with a UNION attack, both queries must return the same number of columns. By injecting `UNION SELECT` with an increasing number of `NULL`s, I determined the original query returns **3 columns**.
 
-## The vulnerability
+## Vulnerability
 
-The shop's product filter takes a `category` parameter and drops it straight into a SQL query:
+- **Type:** SQL Injection (SQLi) → UNION-based — CWE-89
+- **Location:** `GET /filter`, `category` parameter
+- **Severity:** High (enables UNION data extraction from other tables)
 
+## Expected query
+
+The filter appears to build a query like:
+
+```sql
+SELECT name, price, ... FROM products WHERE category = 'Tech gifts' AND released = 1
 ```
-GET /filter?category=Tech%20gifts
+
+The results are reflected in the page, so a UNION can be used to append rows from other tables — but only if the column count matches.
+
+## Steps to reproduce
+
+1. Captured the `GET /filter?category=...` request in Burp **Repeater**.
+2. Set the `category` value to the following, adding one `NULL` each send until the error cleared:
+```
+   Tech gifts' UNION SELECT NULL--
+   Tech gifts' UNION SELECT NULL,NULL--
+   Tech gifts' UNION SELECT NULL,NULL,NULL--
+```
+3. The three-`NULL` payload returned **200 OK** (the one- and two-`NULL` versions returned 500). Lab solved.
+
+## Why the payload works
+
+The query becomes:
+
+```sql
+SELECT ... WHERE category = 'Tech gifts' UNION SELECT NULL,NULL,NULL--' AND released = 1
 ```
 
-The value isn't sanitised, so a single quote (`'`) breaks out of the string and lets me append my own SQL. Because the query's results are reflected in the page, this is exploitable with a **UNION** attack to pull data from other tables.
+- `'` — closes the category string.
+- `UNION SELECT NULL,NULL,NULL` — appends a second query. It only succeeds when the number of columns matches the original.
+- `--` — comments out the rest of the original query.
 
-But a `UNION SELECT` only works if **both** queries return the **same number of columns**. So before extracting anything, I need to find out how many columns the original query returns.
+`NULL` is used because it's compatible with every column data type, so it isolates the column-count test from type-mismatch errors. The **500 → 200** flip is the signal: 500 means the column count is wrong, 200 means it matches.
 
-## Exploitation
+## Impact
 
-Method: inject a `UNION SELECT` with a growing list of `NULL`s, one more each time, until the error stops.
-
-`NULL` is used because it's compatible with every column data type (text, int, date), so it isolates the column-count test from any type-mismatch errors.
-
-| Payload (`category` value) | Status |
-|---|---|
-| `Tech gifts' UNION SELECT NULL--` | 500 |
-| `Tech gifts' UNION SELECT NULL,NULL--` | 500 |
-| `Tech gifts' UNION SELECT NULL,NULL,NULL--` | **200 OK** |
-
-Three NULLs returns **200**, so the query returns **3 columns**. Lab solved.
-
-### Notes
-- Each payload **replaces** the previous one — stacking them into one value just produces one broken query that always errors.
-- The comment `--` needs a trailing space (or use `--+`) so the rest of the original query is ignored.
-- Using Burp's **Inspector → Request query parameters** panel to edit the value handles URL-encoding automatically.
-
-## Reading the result
-
-There's no visible data in the response because every injected column is `NULL` — the row is there, it's just blank. For this lab the **200-vs-500 flip is the signal**: 500 means the query is malformed (wrong column count), 200 means it's valid.
-
-| Code | Meaning | In this context |
-|---|---|---|
-| **500** Internal Server Error | Server-side error — the query threw an exception | Column count is wrong / query is broken |
-| **200** OK | Request succeeded, normal page returned | Query is valid — column count matches |
+Confirming the column count is the first step of a UNION attack. With it known, an attacker can replace the `NULL`s with real columns to extract arbitrary data — usernames, password hashes, and other table contents — from the database.
 
 ## Remediation
 
-- **Parameterised queries / prepared statements** — bind `category` as data so it's treated as a literal value, never executed as SQL.
+- **Parameterised queries / prepared statements** — user input is bound as data, so the injected SQL is treated as a literal category value that simply doesn't match, not as SQL.
 - **Allow-list** the input where the valid set is known (e.g. category names).
-- **Don't leak 500 error detail / stack traces** to the client — verbose errors make injection easier to map.
-
-## Key takeaway
-
-Before a UNION attack can extract data, the injected query must match the original's column count. Incrementing `NULL`s until the error clears is the standard, type-agnostic way to find that number — and the HTTP status code (500 → 200) is the feedback channel that tells you when you've got it.
+- Don't leak 500 error detail / stack traces to the client — verbose errors make injection easier to map.
 
 ## Screenshots
 
-![200 OK response for the three-NULL payload in Burp Repeater](images/03-lab.png)
-*Three NULLs → `200 OK` in Burp Repeater. The earlier one- and two-NULL payloads returned 500.*
+![Three NULLs returning 200 OK in Burp Repeater](images/03-lab.png)
 
 ![Lab marked as solved](images/03-result.png)
-*"Congratulations, you solved the lab!"*
