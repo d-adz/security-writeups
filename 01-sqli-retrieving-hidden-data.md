@@ -62,6 +62,6 @@ Exposure of data intended to be hidden. The same entry point could be escalated 
 
 ## Screenshots
 
-![Payload in Repeater](images/writeup1.png)
+![Payload in Repeater](images/01-payload.png)
 
-![Hidden products returned](images/writeup1.1.png)
+![Hidden products returned](images/01-result.png)
