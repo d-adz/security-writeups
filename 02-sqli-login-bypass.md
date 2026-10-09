@@ -58,7 +58,4 @@ Complete authentication bypass. An attacker can log in as any known user, includ
 
 ## Screenshots
 
-*(optional — add images/ and reference them)*
-
-- `![Injected username in Repeater](images/02-payload.png)`
-- `![Logged in as administrator](images/02-result.png)`
+![Logged in as administrator](images/02-result.png)
