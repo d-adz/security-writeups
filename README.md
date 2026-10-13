@@ -5,7 +5,7 @@ Hands-on write-ups of web application vulnerabilities I've practised on the
 Each covers what the vulnerability is, how I exploited it, why the payload works,
 and how it should be fixed.
 
-> ⚠️ All testing was done in PortSwigger's deliberately vulnerable training labs.
+> All testing was done in PortSwigger's deliberately vulnerable training labs.
 > These are learning exercises, not findings against any real-world system.
 
 ## Tools
