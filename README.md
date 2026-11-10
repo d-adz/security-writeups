@@ -19,8 +19,9 @@ and how it should be fixed.
 |---|---------------|----------|-------|
 | 01 | [Retrieving hidden data](01-sqli-retrieving-hidden-data.md) | SQL Injection | Apprentice |
 | 02 | [Login bypass](02-sqli-login-bypass.md) | SQL Injection | Apprentice |
-| 03 | [Determining the number of columns](03-sqli-union-dlumn-count.md) | SQL Injection | Practitioner |
+| 03 | [Determining the number of columns](03-sqli-union-column-count.md) | SQL Injection | Practitioner |
 | 04 | [Finding a column containing text](04-sqli-union-column-text.md) | SQL Injection | Practitioner |
+| 05 | [Retrieving data from other tables](05-sqli-union-data-from-other-tables.md) | SQL Injection | Practitioner |
 
 ## Key takeaway
 
