@@ -22,6 +22,7 @@ and how it should be fixed.
 | 03 | [Determining the number of columns](03-sqli-union-column-count.md) | SQL Injection | Practitioner |
 | 04 | [Finding a column containing text](04-sqli-union-column-text.md) | SQL Injection | Practitioner |
 | 05 | [Retrieving data from other tables](05-sqli-union-data-from-other-tables.md) | SQL Injection | Practitioner |
+| 06 | [Retrieving multiple values in a single column](06-sqli-union-multiple-values-single-column.md) | SQL Injection | Practitioner |
 
 ## Key takeaway
 
